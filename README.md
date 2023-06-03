@@ -1,2 +1,7 @@
 # DailyBonusSongChanges
- A mod to enable any number of bonus songs per day, as well as limiting what difficulties can become bonus songs.
+
+This is a mod for Taiko no Tatsujin: The Drum Master!\
+It will enable changing the number of bonus songs available each day, as well as limiting what difficulties can appear as a bonus song.\
+It has support for the Mono (1.2.2) version of the game. I attempted IL2CPP support, but it failed so far. If you wish to give it a shot, go for it.
+ 
+[My other mods](https://docs.google.com/spreadsheets/d/1fuAAfK-0Vw74TwxXF5WVy1fh1ADsVzUkDd7dOHc7EdQ)
