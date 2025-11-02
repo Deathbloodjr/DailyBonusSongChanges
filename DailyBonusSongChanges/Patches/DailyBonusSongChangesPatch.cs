@@ -1,6 +1,8 @@
 ﻿using HarmonyLib;
+using LightWeightJsonParser;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -78,6 +80,8 @@ namespace DailyBonusSongChanges.Patches
 				TaikoSingletonMonoBehaviour<CommonObjects>.Instance.MyDataManager.PlayData.SetDailyMusicsInfo(0, ref dailyMusicsInfo, true);
 #endif
 			}
+
+			List<SongSelectManager.Song> SelectedSongs = new List<SongSelectManager.Song>();
 			for (int k = 0; k < NumDailyMusicCount; k++)
 			{
 				foreach (SongSelectManager.Song song2 in __instance.UnsortedSongList)
@@ -85,13 +89,38 @@ namespace DailyBonusSongChanges.Patches
 					if (song2.UniqueId == dailyMusicsInfo.uniqueIds[k] && !dailyMusicsInfo.isPlayed[k])
 					{
 						song2.DailyBonus = true;
-						break;
+                        SelectedSongs.Add(song2);
+                        break;
 					}
 				}
 			}
-			return false;
+			WriteDailyPlaylistJson(SelectedSongs);
+
+            return false;
 		}
 
+
+		private static void WriteDailyPlaylistJson(List<SongSelectManager.Song> songs)
+		{
+			var orderedSongs = songs.OrderBy((x) => Math.Max(x.Stars[3], x.Stars[4])).ToList();
+
+			LWJsonObject json = new LWJsonObject()
+				.Add("playlistName", "DailyBonusSongs")
+				.Add("order", 0)
+				.Add("songs", new LWJsonArray());
+
+			var songArray = json["songs"].AsArray();
+			for (int i = 0; i < orderedSongs.Count; i++)
+			{
+				LWJsonObject songJson = new LWJsonObject()
+					.Add("songId", orderedSongs[i].Id)
+					.Add("genreNo", orderedSongs[i].SongGenre)
+					.Add("isDlc", false);
+				songArray.Add(songJson);
+			}
+
+			File.WriteAllText(Path.Combine(Plugin.Instance.ConfigPlaylistJson.Value, "DailyBonusSongs.json"), json.ToString());
+		}
 
 
 		[HarmonyPatch(typeof(DailyMusicsInfo), "Reset")]

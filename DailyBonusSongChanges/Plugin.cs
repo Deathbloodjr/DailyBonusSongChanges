@@ -6,6 +6,7 @@ using System.Collections;
 using UnityEngine;
 using BepInEx.Configuration;
 using DailyBonusSongChanges.Patches;
+using System.IO;
 
 #if TAIKO_IL2CPP
 using BepInEx.Unity.IL2CPP.Utils;
@@ -14,13 +15,15 @@ using BepInEx.Unity.IL2CPP;
 
 namespace DailyBonusSongChanges
 {
-    [BepInPlugin(PluginInfo.PLUGIN_GUID, "Daily Bonus Song Changes", PluginInfo.PLUGIN_VERSION)]
+    [BepInPlugin(PluginInfo.PLUGIN_GUID, ModName, PluginInfo.PLUGIN_VERSION)]
 #if TAIKO_MONO
     public class Plugin : BaseUnityPlugin
 #elif TAIKO_IL2CPP
     public class Plugin : BasePlugin
 #endif
     {
+        public const string ModName = "DailyBonusSongChanges";
+
         public static Plugin Instance;
         private Harmony _harmony;
         public new static ManualLogSource Log;
@@ -30,6 +33,8 @@ namespace DailyBonusSongChanges
         public ConfigEntry<int> ConfigNumDailyBonusSongs;
         public ConfigEntry<int> ConfigMinLevelBonusSongs;
         public ConfigEntry<int> ConfigMaxLevelBonusSongs;
+
+        public ConfigEntry<string> ConfigPlaylistJson;
 
 #if TAIKO_MONO
         private void Awake()
@@ -51,9 +56,7 @@ namespace DailyBonusSongChanges
 
         private void SetupConfig()
         {
-            // I never really used this
-            // I'd rather just use a folder in BepInEx's folder for storing information
-            var userFolder = Environment.GetFolderPath(Environment.SpecialFolder.UserProfile);
+            string dataFolder = Path.Combine("BepInEx", "data", ModName);
 
             ConfigEnabled = Config.Bind("General",
                 "Enabled",
@@ -73,6 +76,11 @@ namespace DailyBonusSongChanges
             ConfigMaxLevelBonusSongs = Config.Bind("BonusSongs",
                 "MaxLevelBonusSongs",
                 10,
+                "Change the maximum level of daily bonus songs you get");
+
+            ConfigPlaylistJson = Config.Bind("BonusSongs",
+                "PlaylistJson",
+                Path.Combine("BepInEx", "data", "CustomPlaylists", ModName),
                 "Change the maximum level of daily bonus songs you get");
 
         }
