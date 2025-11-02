@@ -102,7 +102,10 @@ namespace DailyBonusSongChanges.Patches
 
 		private static void WriteDailyPlaylistJson(List<SongSelectManager.Song> songs)
 		{
-			var orderedSongs = songs.OrderBy((x) => Math.Max(x.Stars[3], x.Stars[4])).ToList();
+			var orderedSongs = songs.OrderBy((x) => Math.Max(x.Stars[3], x.Stars[4]))
+				.ThenBy((x) => x.SongGenre)
+				.ThenBy((x) => x.Order)
+				.ToList();
 
 			LWJsonObject json = new LWJsonObject()
 				.Add("playlistName", "DailyBonusSongs")
@@ -117,6 +120,11 @@ namespace DailyBonusSongChanges.Patches
 					.Add("genreNo", orderedSongs[i].SongGenre)
 					.Add("isDlc", false);
 				songArray.Add(songJson);
+			}
+
+			if (!Directory.Exists(Plugin.Instance.ConfigPlaylistJson.Value))
+			{
+				Directory.CreateDirectory(Plugin.Instance.ConfigPlaylistJson.Value);
 			}
 
 			File.WriteAllText(Path.Combine(Plugin.Instance.ConfigPlaylistJson.Value, "DailyBonusSongs.json"), json.ToString());
